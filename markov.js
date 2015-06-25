@@ -20,19 +20,19 @@ function process()
 				words = handlePeriods(i);
 			}
 
-			if((dict[words[i-1]] === undefined)||(typeof dict[words[i-1]] != "string"))
+			if((dict[words[i-1]] === undefined)||((typeof dict[words[i-1]] != "string")&&(typeof dict[words[i-1]] != "object")))
 			{
 				dict[words[i-1]] = [words[i]];
 			}
 			else
 			{
-				console.log("words[i-1]:", words[i-1], "type: " + typeof words[i-1], "dict[words[i-1]]:", dict[words[i-1]], "type: " + typeof dict[words[i-1]]);
-				console.log(dict);
 				dict[words[i-1]].push(words[i]);
 			}
 		}
 	}
-	// construct(dict, possibleFirsts);
+
+	console.log(possibleFirsts);
+	console.log(dict);
 
 	function handlePeriods(i) //needs to include !, ?, and ... (maybe "" too?)
 	{
@@ -60,7 +60,7 @@ function process()
 
 function construct()
 {
-	console.log(dict);
+	// console.log(dict);
 	var str = "";
 	var word = possibleFirsts[randomInt(possibleFirsts.length-1, 0)];
 	str += word;
@@ -73,6 +73,7 @@ function construct()
 	{
 		if(word != ". ")
 			str += " ";
+		// console.log(word);
 		var len = dict[word].length;
 		var rand = randomInt(len-1, 0);
 		word = dict[word][rand];
@@ -86,5 +87,5 @@ function construct()
 
 function randomInt(max, min)
 {
-	return Math.floor(Math.random() * (max - min)) + min;
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
