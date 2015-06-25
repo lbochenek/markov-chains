@@ -1,10 +1,14 @@
-window.onload = function() {document.querySelector(".sub-button").addEventListener("click", process);};
+window.onload = function() {
+	document.querySelector(".sub-button").addEventListener("click", process);
+	document.querySelector(".sen-button").addEventListener("click", construct);
+};
+
+var dict = {};
+var possibleFirsts = [];
 function process()
 {
 	var text = document.querySelector("#sourceText").value;
 	var words = text.split(/[\t \n\r]+/);
-	var dict = {};
-	var possibleFirsts = [];
 	words = handlePeriods(0); //handle case where first word is a sentence
 	possibleFirsts.push(words[0]);
 	for(var i=1; i<words.length; i++)
@@ -16,18 +20,19 @@ function process()
 				words = handlePeriods(i);
 			}
 
-			if(dict[words[i-1]] === undefined)
+			if((dict[words[i-1]] === undefined)||(typeof dict[words[i-1]] != "string"))
 			{
 				dict[words[i-1]] = [words[i]];
 			}
 			else
 			{
-				console.log("words[i]:", words[i], "words[i-1]:", words[i-1], "dict[words[i-1]]:", dict[words[i-1]]);
+				console.log("words[i-1]:", words[i-1], "type: " + typeof words[i-1], "dict[words[i-1]]:", dict[words[i-1]], "type: " + typeof dict[words[i-1]]);
+				console.log(dict);
 				dict[words[i-1]].push(words[i]);
 			}
 		}
 	}
-	construct(dict, possibleFirsts);
+	// construct(dict, possibleFirsts);
 
 	function handlePeriods(i) //needs to include !, ?, and ... (maybe "" too?)
 	{
@@ -53,7 +58,7 @@ function process()
 	}
 }
 
-function construct(dict, possibleFirsts)
+function construct()
 {
 	console.log(dict);
 	var str = "";
