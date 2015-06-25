@@ -1,6 +1,7 @@
 window.onload = function() {
-	document.querySelector(".sub-button").addEventListener("click", process);
-	document.querySelector(".sen-button").addEventListener("click", construct);
+	document.querySelector("#sub").addEventListener("click", process);
+	document.querySelector("#sen").addEventListener("click", construct);
+	document.querySelector("#clear").addEventListener("click", clear);
 };
 
 var dict = {};
@@ -60,7 +61,6 @@ function process()
 
 function construct()
 {
-	// console.log(dict);
 	var str = "";
 	var word = possibleFirsts[randomInt(possibleFirsts.length-1, 0)];
 	str += word;
@@ -88,4 +88,16 @@ function construct()
 function randomInt(max, min)
 {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function clear()
+{
+	document.querySelector("#sourceText").value = "";
+	dict = {};
+	possibleFirsts = [];
+	var node = document.querySelector("#outcome");
+	while(node.firstChild)
+	{
+		node.removeChild(node.firstChild);
+	}
 }
