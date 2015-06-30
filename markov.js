@@ -7,8 +7,11 @@ window.onload = function() {
 
 var dict = {};
 var possibleFirsts = [];
-var punctReg = /([\.?!,])$/;
+var punctReg = /([\.?!,;:])$/;
+var checkCommas = /[,;:]$/;
 var endSen = /([\.?!])$/;
+var solelyPunct = /^([\.?!,;:]){1,}$/;
+var solelyEnd = /^([\.?!]){1,}$/;
 // var str = "";
 function process()
 {
@@ -22,7 +25,7 @@ function process()
 	{
 		if(words[i] != "")
 		{
-			if(!(/^([\.?!,]){1,}$/.test(words[i])))//just punctuation
+			if(!(solelyPunct.test(words[i])))//just punctuation
 			{
 				words = punctCheck(i);
 			}
@@ -40,7 +43,7 @@ function process()
 
 	console.log(possibleFirsts);
 	console.log(dict);
-	console.log(words);
+	// console.log(words);
 
 	function punctCheck(i)
 	{
@@ -84,7 +87,7 @@ function needToPunctCheck(str)
 function sepPunct(str, tester)
 {
 	for(var i=str.length-2; (i>=0)&&tester(str, i); i--){}
-	if(needToPunctCheck(str))
+	if(needToPunctCheck(str) && !title(str))
 	{
 		if(punctReg.test(str.charAt(i+1)))
 		{
@@ -106,7 +109,7 @@ function construct()
 	var word = possibleFirsts[randomInt(possibleFirsts.length-1, 0)];
 	str += word;
 
-	while(!(/^([\.?!]){1,}$/.test(word)))
+	while(!(solelyEnd.test(word)))
 	{
 		str += " ";
 		console.log("dict[word]", dict[word], word);
@@ -115,9 +118,9 @@ function construct()
 		word = dict[word][rand];
 		str += word;
 
-		if(/(,)$/.test(word))//if comma
+		if(checkCommas.test(word))//if comma
 		{
-			str = properSpacing(str, function(string, ind){return string.charAt(ind)==",";});
+			str = properSpacing(str, function(string, ind){return checkCommas.test(string.charAt(ind));});
 		}
 	}
 
