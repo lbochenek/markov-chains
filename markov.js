@@ -27,7 +27,6 @@ function process()
 		if(words[i] != "")
 		{
 			words[i] = words[i].replace("\"", '');
-			console.log(words[i]);
 			if(!(solelyPunct.test(words[i])))//just punctuation
 			{
 				words = punctCheck(i);
@@ -46,9 +45,6 @@ function process()
 
 	console.log(possibleFirsts);
 	console.log(dict);
-	// console.log(words);
-	//"[^"]+"
-	//(["'])(?:(?=(\\?))\2.)*?\1
 
 	function punctCheck(i)
 	{
