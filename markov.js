@@ -19,12 +19,15 @@ function process()
 	possibleFirsts = [];
 	var text = document.querySelector("#sourceText").value;
 	var words = text.split(/[\t \n\r]+/);
-	words = punctCheck(0); //handle case where first word is a sentence
+	words[0] = words[0].replace("\"", '');
+	words = punctCheck(0); //handle case where first word has punctuation
 	possibleFirsts.push(words[0]);
 	for(var i=1; i<words.length; i++)
 	{
 		if(words[i] != "")
 		{
+			words[i] = words[i].replace("\"", '');
+			console.log(words[i]);
 			if(!(solelyPunct.test(words[i])))//just punctuation
 			{
 				words = punctCheck(i);
@@ -44,6 +47,8 @@ function process()
 	console.log(possibleFirsts);
 	console.log(dict);
 	// console.log(words);
+	//"[^"]+"
+	//(["'])(?:(?=(\\?))\2.)*?\1
 
 	function punctCheck(i)
 	{
@@ -70,6 +75,7 @@ function process()
 
 				if((i < (words.length-2))&&endSen.test(t)) //make list of first choices
 				{
+					words[i+2] = words[i+2].replace("\"", '');
 					var sep = sepPunct(words[i+2], punctFunct);
 					possibleFirsts.push(sep.rest);
 				}
