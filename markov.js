@@ -7,7 +7,8 @@ window.onload = function() {
 
 var dict = {};
 var possibleFirsts = [];
-var punctReg = /([\.?!])$/;
+var punctReg = /([\.?!,])$/;
+var endSen = /([\.?!])$/;
 // var str = "";
 function process()
 {
@@ -21,7 +22,7 @@ function process()
 	{
 		if(words[i] != "")
 		{
-			if(!(/^([\.?!]){1,}$/.test(words[i])))//just punctuation
+			if(!(/^([\.?!,]){1,}$/.test(words[i])))//just punctuation
 			{
 				words = punctCheck(i);
 			}
@@ -41,47 +42,16 @@ function process()
 	console.log(dict);
 	console.log(words);
 
-// 	function handlePeriods(i) //needs to include !, ?, and ... (maybe "" too?)
-// 	{
-// 		var t = words[i];
-// 		if(/(\.)$/.test(t)) //add period as new word
-// 		{
-// 			if(!title(t))
-// 			{
-// 				words[i] = words[i].split(".")[0];
-// 				if(i<(words.length-1))
-// 				{
-// 					words.splice((i+1), 0, ". ");
-// 				}
-// 				else
-// 				{
-// 					words.push(". ");
-// 				}
-
-// 				if(i < (words.length-2)) //get list of first choices
-// 				{
-// 					possibleFirsts.push(words[i+2]);
-// 				}
-// 			}
-// 		}
-// 		return words;
-// 	}
-// }
-
 	function punctCheck(i)
 	{
 		var t = words[i];
-		if(punctReg.test(t)) //add punctuation as new word
+		if(needToPunctCheck(t)) //add punctuation as new word
 		{
 			if(!title(t))
 			{
 
 				var punctFunct = function(string, ind){return punctReg.test(string.charAt(ind))};
 				var seperated = sepPunct(t, punctFunct);
-				// for(var j=t.length-2; (j>=0)&&(punctReg.test(t.charAt(j))); j--){}
-
-				// var newStr = t.substr(0, j+1);
-				// var punct = t.substr(j+1, t.length-1);
 
 				if(i < (words.length-1))
 				{
@@ -95,7 +65,7 @@ function process()
 					words.push(seperated.punctuation);
 				}
 
-				if(i < (words.length-2)) //make list of first choices
+				if((i < (words.length-2))&&endSen.test(t)) //make list of first choices
 				{
 					var sep = sepPunct(words[i+2], punctFunct);
 					possibleFirsts.push(sep.rest);
@@ -106,13 +76,23 @@ function process()
 	}
 }
 
+function needToPunctCheck(str)
+{
+	return punctReg.test(str);
+}
+
 function sepPunct(str, tester)
 {
 	for(var i=str.length-2; (i>=0)&&tester(str, i); i--){}
-	if(punctReg.test(str.charAt(i+1)))
+	if(needToPunctCheck(str))
 	{
-		var newStr = str.substr(0, i+1);
-		var punct = str.substr(i+1, str.length-1);
+		if(punctReg.test(str.charAt(i+1)))
+		{
+			var newStr = str.substr(0, i+1);
+			var punct = str.substr(i+1, str.length-1);
+		}
+		else
+			var newStr = str;
 	}
 	else
 		var newStr = str;
@@ -134,20 +114,27 @@ function construct()
 		var rand = randomInt(len-1, 0);
 		word = dict[word][rand];
 		str += word;
+
+		if(/(,)$/.test(word))//if comma
+		{
+			str = properSpacing(str, function(string, ind){return string.charAt(ind)==",";});
+		}
 	}
 
-	//have proper spacing at end of sentence
-	var seperated = sepPunct(str, function(string, ind){return string.charAt(ind)!=" ";});
-	seperated.rest = seperated.rest.substr(0, seperated.rest.length-1); //get rid of last space
-	// for(var i=str.length-2; (i>=0)&&(str.charAt(i)!=" "); i--){}
-	// var punct = str.substr(i+1, str.length-1);
-	// var sen = str.substr(0, i);
-	str = seperated.rest + seperated.punctuation + " ";
+	//have proper spacing at end of sentence and with commas
+	str = properSpacing(str, function(string, ind){return string.charAt(ind)!=" ";});
 
 	//append to document
 	var res = document.querySelector("#outcome");
 	var t = document.createTextNode(str);
 	res.appendChild(t);
+}
+
+function properSpacing(str, test)
+{
+	var seperated = sepPunct(str, test);
+	seperated.rest = seperated.rest.substr(0, seperated.rest.length-1);
+	return seperated.rest + seperated.punctuation + " ";
 }
 
 function randomInt(max, min)
