@@ -2,8 +2,24 @@ window.onload = function() {
 	document.querySelector("#sub").addEventListener("click", process);
 	document.querySelector("#sen").addEventListener("click", construct);
 	document.querySelector("#clear").addEventListener("click", clear);
-	// document.querySelector("#personInput").addEventListener("keydown", getInput)
+	document.querySelector("#personInput").addEventListener("keyup", getInput);
+	var edit = document.querySelector("#daStuff");
+	edit.addEventListener("blur", function(){
+		localStorage.setItem("daStuff", this.innerHTML);
+		document.designMode = "off";
+	});
+	edit.addEventListener("focus", function(){
+		document.designMode = "on";
+	});
+	edit.addEventListener("keyup", editor);
+
+	// if (localStorage.getItem('daStuff'))
+	// {
+ //  	document.querySelector("#daStuff").innerHTML = localStorage.getItem('daStuff');
+	// }
 };
+
+
 
 var dict = {};
 var possibleFirsts = [];
@@ -12,7 +28,9 @@ var checkCommas = /[,;:]$/;
 var endSen = /([\.?!])$/;
 var solelyPunct = /^([\.?!,;:]){1,}$/;
 var solelyEnd = /^([\.?!]){1,}$/;
-// var str = "";
+var userStr = "";
+var future = [];
+var index = 0;
 function process()
 {
 	dict = {};
@@ -158,22 +176,105 @@ function clear()
 	{
 		node.removeChild(node.firstChild);
 	}
+
+	localStorage.clear();
+	window.location = window.location; //refresh
 }
 
-// function getInput(event)
-// {
-// 	// console.log(String.fromCharCode(event.keyCode), event.keyCode);
-// 	switch(event.keyCode)
-// 	{
-// 		// case 32: //space
-// 		case 8: //backspace
-// 			str = str.slice(0, -1);
-// 			break;
-// 		default:
-// 			str += String.fromCharCode(event.keyCode);
-// 			console.log(str);
-// 	}
-// }
+function getInput(event)
+{
+	var field = document.querySelector("#personInput");
+	switch(event.keyCode)
+	{
+		case 32: //space
+			var pos = doGetCaretPosition(field);
+			var w = getWord(pos, field);
+			break;
+		case 8: //backspace
+			userStr = userStr.slice(0, -1);
+			break;
+		default:
+			userStr += String.fromCharCode(event.charCode);
+			// console.log(userStr);
+	}
+}
+
+function getWord(pos, field)
+{
+	// var text = field.value.split(/[\t \n\r]+/);
+	// for(var i=pos-2; (i>=0)&&(text.charAt(i)!=" "); i--){}
+	// var word = text.substr(i+1, pos-1).split(" ")[0];
+
+	// future.push(word);
+	// if(i)
+
+	// return word;
+}
+
+//http://stackoverflow.com/questions/2897155/get-cursor-position-in-characters-within-a-text-input-field
+function doGetCaretPosition (oField)
+{
+  // Initialize
+  var iCaretPos = 0;
+
+  // IE Support
+  if (document.selection)
+  {
+
+    // Set focus on the element
+    oField.focus ();
+
+    // To get cursor position, get empty selection range
+    var oSel = document.selection.createRange ();
+
+    // Move selection start to 0 position
+    oSel.moveStart ('character', -oField.value.length);
+
+    // The caret position is selection length
+    iCaretPos = oSel.text.length;
+  }
+  // Firefox support
+  else if (oField.selectionStart || oField.selectionStart == '0')
+    iCaretPos = oField.selectionStart;
+
+  // Return results
+  return (iCaretPos);
+}
+
+function editor(event)
+{
+	var container = document.querySelector("#daStuff");
+	var spans = document.querySelectorAll(".word");
+	if(event.keyCode == 32)//space
+	{
+		for(var i=0; i<spans.length; i++)
+		{
+			if(/\b.+\b.+\b/.test(spans[i].textContent))
+			{
+				var wds = spans[i].textContent.split(" ");
+				spans[i].textContent = wds[0];
+				var sp = document.createElement("span");
+				sp.className = "word";
+				var content = document.createTextNode(wds[wds.length-1]);
+				sp.appendChild(content);
+				container.appendChild(sp);
+			}
+		}
+	}
+	// console.log(event.keyCode);
+
+	if(event.keyCode == 8)//backspace
+	{
+		for(var i=0; i<spans.length; i++)
+		{
+			if(spans[i].textContent == "")
+			{
+				container.removeChild(spans[i]);
+				console.log("removed");
+			}
+		}
+	}
+}
 
 function title(word)
 {
