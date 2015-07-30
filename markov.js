@@ -241,38 +241,123 @@ function doGetCaretPosition (oField)
   return (iCaretPos);
 }
 
+// function editor(event)
+// {
+// 	var container = document.querySelector("#daStuff");
+// 	var spans = document.querySelectorAll(".word");
+// 	if(event.keyCode == 32)//space
+// 	{
+// 		for(var i=0; i<spans.length; i++)
+// 		{
+// 			if(/\b.+\b.+\b/.test(spans[i].textContent))
+// 			{
+// 				var wds = spans[i].textContent.split(" ");
+// 				spans[i].textContent = wds[0];
+// 				var sp = document.createElement("span");
+// 				sp.className = "word";
+// 				var content = document.createTextNode(wds[1]);
+// 				sp.appendChild(content);
+
+// 				var prev = spans[i].nextSibling;
+// 				container.insertBefore(sp, prev);
+// 				// container.appendChild(sp);
+// 			}
+// 		}
+// 	}
+// 	// console.log(event.keyCode);
+
+// 	if(event.keyCode == 8)//backspace
+// 	{
+// 		for(var i=0; i<spans.length; i++)
+// 		{
+// 			if(spans[i].textContent == "")
+// 			{
+// 				container.removeChild(spans[i]);
+// 				console.log("removed");
+// 			}
+// 		}
+// 	}
+// }
+
+// function editor(event)
+// {
+// 	if(event.keyCode === 32)//space
+// 	{
+// 		var parentDiv = document.querySelector("#daStuff");
+// 		var sentence = parentDiv.textContent.replace(/\n/g, '').replace(/\t/g, ' ').trim();
+// 		// console.log(sentence);
+// 		var spans = document.querySelectorAll(".word");
+// 		var words = sentence.split(" ");
+// 		var lenSpans = spans.length;
+// 		words = words.filter(function(word) {return word !== ''});
+// 		console.log(lenSpans);
+// 		for(var i=words.length-1; i>=0; i--)
+// 		{
+// 			if (i < lenSpans) {
+// 				spans[i].textContent = words[i]+" ";
+// 				console.log(words[i]);
+// 			} else {
+// 				var sp = document.createElement('span');
+// 				sp.className = 'word';
+// 				var content = document.createTextNode(words[i]+" ");
+// 				console.log(words[i]);
+// 				sp.appendChild(content);
+// 				parentDiv.appendChild(sp);
+// 			}
+// 		}
+// 	}
+// }
+
+// function editor(event)
+// {
+// 	if(event.keyCode === 32)
+// 	{
+// 		var parent = document.querySelector("#daStuff");
+// 		var sentence = parent.textContent.replace(/\n/g, '').replace(/\t/g, ' ').trim();
+// 		var words = sentence.split(" ").filter(function(word) {return word !== ''});
+// 		console.log(words);
+
+// 		if(words.length <= 1)
+// 			return;
+
+// 		var span = document.createElement("span");
+// 		span.className = 'word';
+// 		parent.appendChild(span);
+// 		var spans = document.querySelectorAll(".word");
+
+// 		for(var i=0, len=spans.length; i<len-1; i++)
+// 		{
+// 			spans[i].textContent = words[i+1];
+// 			console.log(words[i+1]);
+// 		}
+// 		spans[len-1].textContent = words[0];
+// 	}
+// }
+
 function editor(event)
 {
-	var container = document.querySelector("#daStuff");
-	var spans = document.querySelectorAll(".word");
-	if(event.keyCode == 32)//space
+	if(event.keyCode === 32)
 	{
-		for(var i=0; i<spans.length; i++)
+		var words = [];
+		var spans = document.querySelectorAll(".word");
+		var spanWords = [];
+		for(var i=0, len=spans.length; i<len; i++)
 		{
-			if(/\b.+\b.+\b/.test(spans[i].textContent))
-			{
-				var wds = spans[i].textContent.split(" ");
-				spans[i].textContent = wds[0];
-				var sp = document.createElement("span");
-				sp.className = "word";
-				var content = document.createTextNode(wds[wds.length-1]);
-				sp.appendChild(content);
-				container.appendChild(sp);
-			}
+      // debugger;
+			spanWords = spans[i].textContent.split(/\s/).filter(function(word){return word !== ""});
+			words = words.concat(spanWords);
 		}
-	}
-	// console.log(event.keyCode);
+		console.log(words);
+		var span = document.createElement("span");
+		span.className = 'word';
+		document.querySelector("#daStuff").appendChild(span);
+		spans = document.querySelectorAll(".word");
 
-	if(event.keyCode == 8)//backspace
-	{
-		for(var i=0; i<spans.length; i++)
+		for(var i=0, len=spans.length; i<len-1; i++)
 		{
-			if(spans[i].textContent == "")
-			{
-				container.removeChild(spans[i]);
-				console.log("removed");
-			}
+			spans[i].textContent = words[i+1];
 		}
+		spans[len-1].textContent = words[0];
 	}
 }
 
