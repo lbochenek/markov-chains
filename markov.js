@@ -4,23 +4,25 @@ window.onload = function() {
 	document.querySelector("#clear").addEventListener("click", clear);
 	document.querySelector("#personInput").addEventListener("keyup", getInput);
 	var edit = document.querySelector("#daStuff");
-	edit.addEventListener("blur", function(){
-		localStorage.setItem("daStuff", this.innerHTML);
-		document.designMode = "off";
-	});
-	edit.addEventListener("focus", function(){
-		document.designMode = "on";
-	});
-	edit.addEventListener("keyup", editor);
+	// edit.addEventListener("blur", function(){
+	// 	localStorage.setItem("daStuff", this.innerHTML);
+	// 	document.designMode = "off";
+	// });
+	// edit.addEventListener("focus", function(){
+	// 	document.designMode = "on";
+	// });
+	// edit.addEventListener("keyup", editor);
+	edit.addEventListener("keypress", editor);
 
-	// if (localStorage.getItem('daStuff'))
-	// {
- //  	document.querySelector("#daStuff").innerHTML = localStorage.getItem('daStuff');
-	// }
+	rangy = require('rangy');
+	$ = require('jquery');
+	require('rangy/lib/rangy-selectionsaverestore.js');
+	require('rangy/lib/rangy-textrange.js');
+	require('rangy/lib/rangy-classapplier.js');
 };
 
-
-
+var $ = null;
+var rangy = null;
 var dict = {};
 var possibleFirsts = [];
 var punctReg = /([\.?!,;:])$/;
@@ -61,7 +63,6 @@ function process()
 		}
 	}
 
-	console.log(possibleFirsts);
 	console.log(dict);
 
 	function punctCheck(i)
@@ -132,7 +133,6 @@ function construct()
 	while(!(solelyEnd.test(word)))
 	{
 		str += " ";
-		console.log("dict[word]", dict[word], word);
 		var len = dict[word].length;
 		var rand = randomInt(len-1, 0);
 		word = dict[word][rand];
@@ -199,167 +199,89 @@ function getInput(event)
 	}
 }
 
-function getWord(pos, field)
-{
-	// var text = field.value.split(/[\t \n\r]+/);
-	// for(var i=pos-2; (i>=0)&&(text.charAt(i)!=" "); i--){}
-	// var word = text.substr(i+1, pos-1).split(" ")[0];
+function editor(event){
+	contentMalleable("daStuff", "word", function(elem, appl){});
+	var writing = document.querySelector("#daStuff");
 
-	// future.push(word);
-	// if(i)
-
-	// return word;
-}
-
-//http://stackoverflow.com/questions/2897155/get-cursor-position-in-characters-within-a-text-input-field
-function doGetCaretPosition (oField)
-{
-  // Initialize
-  var iCaretPos = 0;
-
-  // IE Support
-  if (document.selection)
-  {
-
-    // Set focus on the element
-    oField.focus ();
-
-    // To get cursor position, get empty selection range
-    var oSel = document.selection.createRange ();
-
-    // Move selection start to 0 position
-    oSel.moveStart ('character', -oField.value.length);
-
-    // The caret position is selection length
-    iCaretPos = oSel.text.length;
-  }
-  // Firefox support
-  else if (oField.selectionStart || oField.selectionStart == '0')
-    iCaretPos = oField.selectionStart;
-
-  // Return results
-  return (iCaretPos);
-}
-
-// function editor(event)
-// {
-// 	var container = document.querySelector("#daStuff");
-// 	var spans = document.querySelectorAll(".word");
-// 	if(event.keyCode == 32)//space
-// 	{
-// 		for(var i=0; i<spans.length; i++)
-// 		{
-// 			if(/\b.+\b.+\b/.test(spans[i].textContent))
-// 			{
-// 				var wds = spans[i].textContent.split(" ");
-// 				spans[i].textContent = wds[0];
-// 				var sp = document.createElement("span");
-// 				sp.className = "word";
-// 				var content = document.createTextNode(wds[1]);
-// 				sp.appendChild(content);
-
-// 				var prev = spans[i].nextSibling;
-// 				container.insertBefore(sp, prev);
-// 				// container.appendChild(sp);
-// 			}
-// 		}
-// 	}
-// 	// console.log(event.keyCode);
-
-// 	if(event.keyCode == 8)//backspace
-// 	{
-// 		for(var i=0; i<spans.length; i++)
-// 		{
-// 			if(spans[i].textContent == "")
-// 			{
-// 				container.removeChild(spans[i]);
-// 				console.log("removed");
-// 			}
-// 		}
-// 	}
-// }
-
-// function editor(event)
-// {
-// 	if(event.keyCode === 32)//space
-// 	{
-// 		var parentDiv = document.querySelector("#daStuff");
-// 		var sentence = parentDiv.textContent.replace(/\n/g, '').replace(/\t/g, ' ').trim();
-// 		// console.log(sentence);
-// 		var spans = document.querySelectorAll(".word");
-// 		var words = sentence.split(" ");
-// 		var lenSpans = spans.length;
-// 		words = words.filter(function(word) {return word !== ''});
-// 		console.log(lenSpans);
-// 		for(var i=words.length-1; i>=0; i--)
-// 		{
-// 			if (i < lenSpans) {
-// 				spans[i].textContent = words[i]+" ";
-// 				console.log(words[i]);
-// 			} else {
-// 				var sp = document.createElement('span');
-// 				sp.className = 'word';
-// 				var content = document.createTextNode(words[i]+" ");
-// 				console.log(words[i]);
-// 				sp.appendChild(content);
-// 				parentDiv.appendChild(sp);
-// 			}
-// 		}
-// 	}
-// }
-
-// function editor(event)
-// {
-// 	if(event.keyCode === 32)
-// 	{
-// 		var parent = document.querySelector("#daStuff");
-// 		var sentence = parent.textContent.replace(/\n/g, '').replace(/\t/g, ' ').trim();
-// 		var words = sentence.split(" ").filter(function(word) {return word !== ''});
-// 		console.log(words);
-
-// 		if(words.length <= 1)
-// 			return;
-
-// 		var span = document.createElement("span");
-// 		span.className = 'word';
-// 		parent.appendChild(span);
-// 		var spans = document.querySelectorAll(".word");
-
-// 		for(var i=0, len=spans.length; i<len-1; i++)
-// 		{
-// 			spans[i].textContent = words[i+1];
-// 			console.log(words[i+1]);
-// 		}
-// 		spans[len-1].textContent = words[0];
-// 	}
-// }
-
-function editor(event)
-{
-	if(event.keyCode === 32)
-	{
-		var words = [];
-		var spans = document.querySelectorAll(".word");
-		var spanWords = [];
-		for(var i=0, len=spans.length; i<len; i++)
-		{
-      // debugger;
-			spanWords = spans[i].textContent.split(/\s/).filter(function(word){return word !== ""});
-			words = words.concat(spanWords);
+	if(event.key == " "){
+		var sel = rangy.getSelection();
+		var typed = sel.focusNode;
+		var node = typed.previousSibling;
+		while((!(/\b\w+\b/.test(node.textContent)))&&(node)){
+			node = node.previousSibling;
+			console.log(node.textContent);
 		}
-		console.log(words);
-		var span = document.createElement("span");
-		span.className = 'word';
-		document.querySelector("#daStuff").appendChild(span);
-		spans = document.querySelectorAll(".word");
+		var text = node.textContent;
+		var changedText = text.trim();
 
-		for(var i=0, len=spans.length; i<len-1; i++)
-		{
-			spans[i].textContent = words[i+1];
+		var nextWord = generateWord(changedText);
+		if(nextWord){
+			typed.textContent = nextWord;
+			contentMalleable("daStuff", "word", function(elem, appl){});
 		}
-		spans[len-1].textContent = words[0];
 	}
+
+
 }
+
+function generateWord(word){
+	try{
+		var len = dict[word].length;
+		var rand = randomInt(len-1, 0);
+		return dict[word][rand];
+	} catch (e) {
+		return null;
+	}
+
+}
+
+//funci courtesy of Allison Parrish - https://github.com/aparrish/contentmalleable/blob/master/contentmalleable.js
+function contentMalleable(elemId, spanClass, onElementCreate) {
+    var sel = rangy.getSelection();
+    var savedSel = rangy.saveSelection();
+    var applier = rangy.createClassApplier(spanClass, {
+        normalize: false,
+        onElementCreate: onElementCreate
+    });
+    var range = rangy.createRange();
+    while (range.findText(/\b\w+\b/)) {
+        // don't attempt to re-apply if the selection is in the range
+        if (range.intersectsNode(
+                $('.rangySelectionBoundary').get(0), true)) {
+            range.collapse(false);
+        }
+        else if (!range.intersectsNode(document.getElementById(elemId))) {
+            range.collapse(false);
+        }
+        else {
+            applier.applyToRange(range);
+            range.collapse(false);
+        }
+    }
+    // get rid of class around the text next to the selection
+    var selElem = $('.rangySelectionBoundary').get(0);
+    $('.'+spanClass).each(function(i) {
+        if ($(this).get(0).nextSibling == selElem) {
+            $(this).contents().unwrap();
+        }
+    });
+    // if any spans have more than one word in them now, unwrap
+    $('.'+spanClass).each(function(i) {
+        if ($(this).text().match(/\b.+\b.+\b/)) {
+            $(this).contents().unwrap();
+        }
+    });
+
+    // attempt to remove stupid contenteditable garbage
+    $('#'+elemId + ' span').each(function(i) {
+        if ($(this).attr('class') == undefined) {
+            $(this).contents().unwrap();
+        }
+    });
+    rangy.restoreSelection(savedSel);
+}
+
+module.exports.contentMalleable = contentMalleable;
 
 function title(word)
 {
