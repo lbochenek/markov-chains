@@ -205,6 +205,7 @@ function editor(event){
 
 	if(event.key == " "){
 		var sel = rangy.getSelection();
+		var range = rangy.createRange();
 		var typed = sel.focusNode;
 		var node = typed.previousSibling;
 		while((!(/\b\w+\b/.test(node.textContent)))&&(node)){
@@ -218,6 +219,13 @@ function editor(event){
 		if(nextWord){
 			typed.textContent = nextWord;
 			contentMalleable("daStuff", "word", function(elem, appl){});
+			//set the caret after the node for this range
+			range.setStartAfter(typed);
+			range.setEndAfter(typed);
+
+			//apply this range to the selection object
+			sel.removeAllRanges();
+			sel.addRange(range);
 		}
 	}
 
