@@ -1,164 +1,98 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 window.onload = function() {
 	document.querySelector("#sub").addEventListener("click", process);
-	document.querySelector("#sen").addEventListener("click", construct);
 	document.querySelector("#clear").addEventListener("click", clear);
-	document.querySelector("#personInput").addEventListener("keyup", getInput);
-	var edit = document.querySelector("#daStuff");
-	// edit.addEventListener("blur", function(){
-	// 	localStorage.setItem("daStuff", this.innerHTML);
-	// 	document.designMode = "off";
-	// });
-	// edit.addEventListener("focus", function(){
-	// 	document.designMode = "on";
-	// });
-	// edit.addEventListener("keyup", editor);
-	edit.addEventListener("keypress", editor);
+	document.querySelector("#daStuff").addEventListener("keypress", editor);
 
 	rangy = require('rangy');
 	$ = require('jquery');
 	require('rangy/lib/rangy-selectionsaverestore.js');
 	require('rangy/lib/rangy-textrange.js');
 	require('rangy/lib/rangy-classapplier.js');
+
+	$('#afterHeading').hide();
+	$('#daStuff').hide();
+	$('#clear').hide();
+	$('#sourceText').hide();
+	$('#sub').hide();
+	$('#choose').hide();
+	$('#back').hide();
+
+	document.querySelector("#otherText").addEventListener("click", function(e){
+		$("#otherText").hide();
+		$("#writeLike").hide();
+		$("#subDrop").hide();
+		$('#back').hide();
+		$('#sourceText').show();
+		$('#sub').show();
+		$('#choose').show();
+	});
+
+	document.querySelector("#choose").addEventListener("click", function(e){
+		$("#otherText").show();
+		$("#writeLike").show();
+		$("#subDrop").show();
+		$('#sourceText').hide();
+		$('#sub').hide();
+		$('#choose').hide();
+	});
+
+	document.querySelector('#back').addEventListener("click", function(e){
+		$('#daStuff').hide();
+		$('#afterHeading').hide();
+		$("#otherText").show();
+		$("#writeLike").show();
+		$("#subDrop").show();
+		$('#heading').show();
+		$('#back').hide();
+		dict = {};
+		$('#daStuff').empty();
+	});
 };
 
 var $ = null;
 var rangy = null;
 var dict = {};
-var possibleFirsts = [];
 var punctReg = /([\.?!,;:])$/;
 var checkCommas = /[,;:]$/;
 var endSen = /([\.?!])$/;
 var solelyPunct = /^([\.?!,;:]){1,}$/;
 var solelyEnd = /^([\.?!]){1,}$/;
-var userStr = "";
-var future = [];
-var index = 0;
 function process()
 {
 	dict = {};
-	possibleFirsts = [];
 	var text = document.querySelector("#sourceText").value;
-	var words = text.split(/[\t \n\r]+/);
-	words[0] = words[0].replace("\"", '');
-	words = punctCheck(0); //handle case where first word has punctuation
-	possibleFirsts.push(words[0]);
+	var words = text.split(/[^\w]+/);
 	for(var i=1; i<words.length; i++)
 	{
-		if(words[i] != "")
+		var word = words[i].toLowerCase();
+		var previousWord = words[i-1].toLowerCase();
+		if(word != "")
 		{
-			words[i] = words[i].replace("\"", '');
-			if(!(solelyPunct.test(words[i])))//just punctuation
+			word = word.replace("\"", '');
+			if((dict[previousWord] === undefined)||((typeof dict[previousWord] != "string")&&(typeof dict[previousWord] != "object")))
 			{
-				words = punctCheck(i);
-			}
-
-			if((dict[words[i-1]] === undefined)||((typeof dict[words[i-1]] != "string")&&(typeof dict[words[i-1]] != "object")))
-			{
-				dict[words[i-1]] = [words[i]];
+				dict[previousWord] = [word];
 			}
 			else
 			{
-				dict[words[i-1]].push(words[i]);
+				dict[previousWord].push(word);
 			}
 		}
 	}
 
 	console.log(dict);
+	$('#daStuff').show();
+	$('#afterHeading').show();
+	$("#otherText").hide();
+	$("#writeLike").hide();
+	$("#subDrop").hide();
+	$('#sourceText').hide();
+	$('#sub').hide();
+	$('#choose').hide();
+	$('#heading').hide();
+	$('#back').show();
 
-	function punctCheck(i)
-	{
-		var t = words[i];
-		if(needToPunctCheck(t)) //add punctuation as new word
-		{
-			if(!title(t))
-			{
-
-				var punctFunct = function(string, ind){return punctReg.test(string.charAt(ind))};
-				var seperated = sepPunct(t, punctFunct);
-
-				if(i < (words.length-1))
-				{
-					words.splice(i, 1, seperated.rest);
-					words.splice((i+1), 0, seperated.punctuation);
-				}
-				else
-				{
-					words.pop();
-					words.push(seperated.rest);
-					words.push(seperated.punctuation);
-				}
-
-				if((i < (words.length-2))&&endSen.test(t)) //make list of first choices
-				{
-					words[i+2] = words[i+2].replace("\"", '');
-					var sep = sepPunct(words[i+2], punctFunct);
-					possibleFirsts.push(sep.rest);
-				}
-			}
-		}
-		return words;
-	}
-}
-
-function needToPunctCheck(str)
-{
-	return punctReg.test(str);
-}
-
-function sepPunct(str, tester)
-{
-	for(var i=str.length-2; (i>=0)&&tester(str, i); i--){}
-	if(needToPunctCheck(str) && !title(str))
-	{
-		if(punctReg.test(str.charAt(i+1)))
-		{
-			var newStr = str.substr(0, i+1);
-			var punct = str.substr(i+1, str.length-1);
-		}
-		else
-			var newStr = str;
-	}
-	else
-		var newStr = str;
-
-	return {rest: newStr, punctuation: punct};
-}
-
-function construct()
-{
-	var str = "";
-	var word = possibleFirsts[randomInt(possibleFirsts.length-1, 0)];
-	str += word;
-
-	while(!(solelyEnd.test(word)))
-	{
-		str += " ";
-		var len = dict[word].length;
-		var rand = randomInt(len-1, 0);
-		word = dict[word][rand];
-		str += word;
-
-		if(checkCommas.test(word))//if comma
-		{
-			str = properSpacing(str, function(string, ind){return checkCommas.test(string.charAt(ind));});
-		}
-	}
-
-	//have proper spacing at end of sentence and with commas
-	str = properSpacing(str, function(string, ind){return string.charAt(ind)!=" ";});
-
-	//append to document
-	var res = document.querySelector("#outcome");
-	var t = document.createTextNode(str);
-	res.appendChild(t);
-}
-
-function properSpacing(str, test)
-{
-	var seperated = sepPunct(str, test);
-	seperated.rest = seperated.rest.substr(0, seperated.rest.length-1);
-	return seperated.rest + seperated.punctuation + " ";
 }
 
 function randomInt(max, min)
@@ -182,24 +116,6 @@ function clear()
 	window.location = window.location; //refresh
 }
 
-function getInput(event)
-{
-	var field = document.querySelector("#personInput");
-	switch(event.keyCode)
-	{
-		case 32: //space
-			var pos = doGetCaretPosition(field);
-			var w = getWord(pos, field);
-			break;
-		case 8: //backspace
-			userStr = userStr.slice(0, -1);
-			break;
-		default:
-			userStr += String.fromCharCode(event.charCode);
-			// console.log(userStr);
-	}
-}
-
 function editor(event){
 	contentMalleable("daStuff", "word", function(elem, appl){});
 	var writing = document.querySelector("#daStuff");
@@ -208,18 +124,21 @@ function editor(event){
 		var sel = rangy.getSelection();
 		var range = rangy.createRange();
 		var typed = sel.focusNode;
+		var typedWord = typed.textContent;
 		var node = typed.previousSibling;
 		while((!(/\b\w+\b/.test(node.textContent)))&&(node)){
 			node = node.previousSibling;
-			console.log(node.textContent);
 		}
 		var text = node.textContent;
 		var changedText = text.trim();
 
 		var nextWord = generateWord(changedText);
 		if(nextWord){
+			console.log("original", typedWord, "new", nextWord);
 			typed.textContent = nextWord;
 			contentMalleable("daStuff", "word", function(elem, appl){});
+
+			//http://stackoverflow.com/questions/18351001/move-keyboard-caret-to-the-end-of-element-with-rangy
 			//set the caret after the node for this range
 			range.setStartAfter(typed);
 			range.setEndAfter(typed);
@@ -229,7 +148,6 @@ function editor(event){
 			sel.addRange(range);
 		}
 	}
-
 
 }
 
@@ -244,7 +162,7 @@ function generateWord(word){
 
 }
 
-//funci courtesy of Allison Parrish - https://github.com/aparrish/contentmalleable/blob/master/contentmalleable.js
+//function courtesy of Allison Parrish - https://github.com/aparrish/contentmalleable/blob/master/contentmalleable.js
 function contentMalleable(elemId, spanClass, onElementCreate) {
     var sel = rangy.getSelection();
     var savedSel = rangy.saveSelection();
