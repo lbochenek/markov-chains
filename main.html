@@ -8,19 +8,36 @@
 			height: 500px;
 			width: 500px;
 		}
+
+		.word{
+			margin-right: 2px;
+			margin-left: 2px;
+		}
 	</style>
-	<script src="markov.js"></script>
+	<script src="browserfiedMarkov.js"></script>
 </head>
 
 <body>
+	<h1 id="heading">I want to write like...</h1>
+	<h1 id="afterHeading">Type away!</h1>
+	<select id="writeLike">
+		<option value='austen'>Jane Austen</option>
+		<option value='shakespeare'>Shakespeare</option>
+		<option value='wilde'>Oscar Wilde</option>
+	</select>
+	<button type="button" class="button" id="subDrop">please</button>
+	<br><br>
+	<button type="button" class="button" id="otherText">I have a better idea...</button>
 	<textarea id="sourceText"></textarea>
-	<button type="button" class="button" id="sub">Build Dictionary!</button>
+	<button type="button" class="button" id="sub">please</button>
 	<br>
-	<textarea id="personInput"></textarea>
-	<button type="button" class="button" id="sen">Create Sentence!</button>
-	<br>
+	<button type="button" class="button" id="choose">Actually I changed my mind</button>
 	<button type="button" class="button" id="clear">Clear!</button>
-	<div id="outcome"></div>
+	<br>
+	<div id="daStuff" contenteditable="true">
+		<span class="word">Edit</span>
+	</div>
+	<button type="button" class="button" id="back">I want to write like someone else...</button>
 </body>
 
 </html>
