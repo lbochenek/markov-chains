@@ -46,8 +46,8 @@ function processInput()
 	var words = text.split(/[^\w]+/);
 	for(var i=1; i<words.length; i++)
 	{
-		var word = words[i].toLowerCase();
-		var previousWord = words[i-1].toLowerCase();
+		var word = words[i];
+		var previousWord = words[i-1];
 		if(word != "")
 		{
 			word = word.replace("\"", '');
@@ -116,19 +116,26 @@ function editor(event){
 				return;
 			}
 			var node = typed.previousSibling;
-			while((!(/\b\w+\b/.test(node.textContent)))&&(node)){
-				if(/['-]/.test(node.content)||/['-]/.test(node.textContent)){
+			while(((node)&&!(/\b\w+\b/.test(node.textContent)))){
+				if(/['-.,;]/.test(node.content)||/['-.,;]/.test(node.textContent)){
 					return;
 				}
 				node = node.previousSibling;
 			}
 
-			var text = node.textContent;
-			var changedText = text.trim().toLowerCase().replace(/[^\w\s]|_/g, "");
+			var nextWord = null;
 
-			var nextWord = generateWord(changedText);
+			if(node){
+				var text = node.textContent;
+				if(text){
+					var changedText = text.trim().toLowerCase().replace(/[^\w\s]|_/g, "");
+					nextWord = generateWord(changedText);
+				}
+			}
+
+
 			if(nextWord){
-				console.log("original: " + typedWord, "new: " + nextWord, "based from: " + text);
+				// console.log("original: " + typedWord, "new: " + nextWord, "based from: " + text);
 				typed.textContent = nextWord;
 				contentMalleable("daStuff", "word", function(elem, appl){});
 
@@ -208,54 +215,3 @@ function contentMalleable(elemId, spanClass, onElementCreate) {
 }
 
 module.exports.contentMalleable = contentMalleable;
-
-function title(word)
-{
-	switch(word)
-	{
-		case "Mr.":
-			break;
-		case "Messrs.":
-			break;
-		case "Mrs.":
-			break;
-		case "Ms.":
-			break;
-		case "Mmes.":
-			break;
-		case "Dr.":
-			break;
-		case "Drs.":
-			break;
-		case "Prof.":
-			break;
-		case "Profs.":
-			break;
-		case "Fr.":
-			break;
-		case "Frs.":
-			break;
-		case "Sr.":
-			break;
-		case "Srs.":
-			break;
-		case "St.":
-			break;
-		case "Sts.":
-			break;
-		case "Gen.":
-			break;
-		case "Rep.":
-			break;
-		case "Reps.":
-			break;
-		case "Sen.":
-			break;
-		case "Sens.":
-			break;
-		default:
-			return false;
-	}
-
-	return true;
-}
