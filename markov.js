@@ -43,14 +43,15 @@ function processInput()
 {
 	dict = {};
 	var text = document.querySelector("#sourceText").value;
-	var words = text.split(/[^\w]+/);
+	var words = text.split(/[\s]+|-{2,}/);
+	words[0] = words[0].replace(/[^\w'-]/g, "");
 	for(var i=1; i<words.length; i++)
 	{
+		words[i].replace(/[^\w'-]/g, "");
 		var word = words[i];
 		var previousWord = words[i-1];
 		if(word != "")
 		{
-			word = word.replace("\"", '');
 			if((dict[previousWord] === undefined)||((typeof dict[previousWord] != "string")&&(typeof dict[previousWord] != "object")))
 			{
 				dict[previousWord] = [word];
@@ -62,7 +63,6 @@ function processInput()
 		}
 	}
 
-	console.log(dict);
 	$("#chooseCustom").children().hide();
 	$("#choosePreLoaded").children().hide();
 	$("#beforeSelection").children().hide();
@@ -71,25 +71,23 @@ function processInput()
 
 function processSelected(){
 	var author = document.querySelector("#writeLike").value;
-	var path = author + ".json";
+	var path = "json/" + author + ".json";
 	$.ajax({
 		url: path,
 		type: "GET",
 		dataType: "json",
 		success: function(data){
 			dict = data;
+			$("#chooseCustom").children().hide();
+			$("#choosePreLoaded").children().hide();
+			$("#beforeSelection").children().hide();
+			$('#afterSelection').children().show();
 		},
 		error: function(xhr, status, errorThrown){
 			alert("Oops! Our mistake!");
 			console.log("Error: "+errorThrown);
 			console.log("Status: "+status);
 			console.dir( xhr );
-		},
-		complete: function(xhr, status){
-			$("#chooseCustom").children().hide();
-			$("#choosePreLoaded").children().hide();
-			$("#beforeSelection").children().hide();
-			$('#afterSelection').children().show();
 		}
 	});
 }
@@ -111,13 +109,13 @@ function editor(event){
 			var range = rangy.createRange();
 			var typed = sel.focusNode;
 			var typedWord = typed.textContent;
-			//check for end of sentence or contraction
-			if(/[.?!]/.test(typedWord)){
+			//check for end of sentence or comma
+			if(/[.?!,]/.test(typedWord)){
 				return;
 			}
 			var node = typed.previousSibling;
 			while(((node)&&!(/\b\w+\b/.test(node.textContent)))){
-				if(/['-.,;]/.test(node.content)||/['-.,;]/.test(node.textContent)){
+				if(/['-.,;!?]/.test(node.content)||/['-.,;!?]/.test(node.textContent)){
 					return;
 				}
 				node = node.previousSibling;
@@ -128,14 +126,14 @@ function editor(event){
 			if(node){
 				var text = node.textContent;
 				if(text){
-					var changedText = text.trim().toLowerCase().replace(/[^\w\s]|_/g, "");
+					var changedText = text.trim();
 					nextWord = generateWord(changedText);
 				}
 			}
 
 
 			if(nextWord){
-				// console.log("original: " + typedWord, "new: " + nextWord, "based from: " + text);
+				console.log("original: " + typedWord, "new: " + nextWord, "based from: " + text);
 				typed.textContent = nextWord;
 				contentMalleable("daStuff", "word", function(elem, appl){});
 
