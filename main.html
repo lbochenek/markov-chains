@@ -3,41 +3,39 @@
 
 <head>
 	<meta charset="UTF-8">
-	<style>
-		#sourceText{
-			height: 500px;
-			width: 500px;
-		}
-
-		.word{
-			margin-right: 2px;
-			margin-left: 2px;
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="style.css">
 	<script src="browserfiedMarkov.js"></script>
 </head>
 
 <body>
-	<h1 id="heading">I want to write like...</h1>
-	<h1 id="afterHeading">Type away!</h1>
-	<select id="writeLike">
-		<option value='austen'>Jane Austen</option>
-		<option value='shakespeare'>Shakespeare</option>
-		<option value='wilde'>Oscar Wilde</option>
-	</select>
-	<button type="button" class="button" id="subDrop">please</button>
-	<br><br>
-	<button type="button" class="button" id="otherText">I have a better idea...</button>
-	<textarea id="sourceText"></textarea>
-	<button type="button" class="button" id="sub">please</button>
-	<br>
-	<button type="button" class="button" id="choose">Actually I changed my mind</button>
-	<button type="button" class="button" id="clear">Clear!</button>
-	<br>
-	<div id="daStuff" contenteditable="true">
-		<span class="word">Edit</span>
+	<div id="beforeSelection">
+		<h1 id="heading">I want to write like...</h1>
+		<div id="choosePreLoaded">
+			<select id="writeLike">
+				<option value='austen'>Jane Austen</option>
+				<option value='shakespeare'>Shakespeare</option>
+				<option value='wilde'>Oscar Wilde</option>
+			</select>
+			<button type="button" class="btn-default" id="subDrop">please</button>
+			<br><br>
+			<button type="button" class="btn-default" id="otherText">I have a better idea...</button>
+		</div>
+		<div id="chooseCustom">
+			<textarea id="sourceText" cols="70" rows="25"></textarea>
+			<button type="button" class="btn-default" id="sub">please</button>
+			<br> <br>
+			<button type="button" class="btn-default" id="choose">Actually I changed my mind</button>
+		</div>
 	</div>
-	<button type="button" class="button" id="back">I want to write like someone else...</button>
+	<div id="afterSelection">
+		<h1 id="afterHeading">Type away!</h1>
+		<div id="daStuff" contenteditable="true">
+			<span class="word">Edit</span>
+		</div>
+		<br>
+		<button type="button" class="btn-default" id="back">I want to write like someone else...</button>
+	</div>
+
 </body>
 
 </html>

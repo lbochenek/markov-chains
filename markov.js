@@ -1,6 +1,5 @@
 window.onload = function() {
-	document.querySelector("#sub").addEventListener("click", process);
-	document.querySelector("#clear").addEventListener("click", clear);
+	document.querySelector("#sub").addEventListener("click", processInput);
 	document.querySelector("#daStuff").addEventListener("keypress", editor);
 
 	rangy = require('rangy');
@@ -9,55 +8,38 @@ window.onload = function() {
 	require('rangy/lib/rangy-textrange.js');
 	require('rangy/lib/rangy-classapplier.js');
 
-	$('#afterHeading').hide();
-	$('#daStuff').hide();
-	$('#clear').hide();
-	$('#sourceText').hide();
-	$('#sub').hide();
-	$('#choose').hide();
-	$('#back').hide();
+	$('#chooseCustom').children().hide();
+	$('#afterSelection').children().hide();
 
+	//input own text instead of choosing from dropdown
 	document.querySelector("#otherText").addEventListener("click", function(e){
-		$("#otherText").hide();
-		$("#writeLike").hide();
-		$("#subDrop").hide();
-		$('#back').hide();
-		$('#sourceText').show();
-		$('#sub').show();
-		$('#choose').show();
+		$("#choosePreLoaded").children().hide();
+		$("#chooseCustom").children().show();
 	});
 
+	//return from inputed text to dropdown options
 	document.querySelector("#choose").addEventListener("click", function(e){
-		$("#otherText").show();
-		$("#writeLike").show();
-		$("#subDrop").show();
-		$('#sourceText').hide();
-		$('#sub').hide();
-		$('#choose').hide();
+		$("#chooseCustom").children().hide();
+		$("#choosePreLoaded").children().show();
 	});
 
+	//start over and enter new text
 	document.querySelector('#back').addEventListener("click", function(e){
-		$('#daStuff').hide();
-		$('#afterHeading').hide();
-		$("#otherText").show();
-		$("#writeLike").show();
-		$("#subDrop").show();
-		$('#heading').show();
-		$('#back').hide();
+		$("#afterSelection").children().hide();
+		$("#beforeSelection").children().show();
+		$("#chooseCustom").children().hide();
+		$("#choosePreLoaded").children().show();
 		dict = {};
-		$('#daStuff').empty();
+		$('#daStuff').empty().append('<span class="word">Edit</span>');
 	});
+
+	document.querySelector('#subDrop').addEventListener("click", processSelected);
 };
 
 var $ = null;
 var rangy = null;
 var dict = {};
-var punctReg = /([\.?!,;:])$/;
-var checkCommas = /[,;:]$/;
-var endSen = /([\.?!])$/;
-var solelyPunct = /^([\.?!,;:]){1,}$/;
-var solelyEnd = /^([\.?!]){1,}$/;
-function process()
+function processInput()
 {
 	dict = {};
 	var text = document.querySelector("#sourceText").value;
@@ -81,17 +63,35 @@ function process()
 	}
 
 	console.log(dict);
-	$('#daStuff').show();
-	$('#afterHeading').show();
-	$("#otherText").hide();
-	$("#writeLike").hide();
-	$("#subDrop").hide();
-	$('#sourceText').hide();
-	$('#sub').hide();
-	$('#choose').hide();
-	$('#heading').hide();
-	$('#back').show();
+	$("#chooseCustom").children().hide();
+	$("#choosePreLoaded").children().hide();
+	$("#beforeSelection").children().hide();
+	$('#afterSelection').children().show();
+}
 
+function processSelected(){
+	var author = document.querySelector("#writeLike").value;
+	var path = author + ".json";
+	$.ajax({
+		url: path,
+		type: "GET",
+		dataType: "json",
+		success: function(data){
+			dict = data;
+		},
+		error: function(xhr, status, errorThrown){
+			alert("Oops! Our mistake!");
+			console.log("Error: "+errorThrown);
+			console.log("Status: "+status);
+			console.dir( xhr );
+		},
+		complete: function(xhr, status){
+			$("#chooseCustom").children().hide();
+			$("#choosePreLoaded").children().hide();
+			$("#beforeSelection").children().hide();
+			$('#afterSelection').children().show();
+		}
+	});
 }
 
 function randomInt(max, min)
@@ -100,54 +100,54 @@ function randomInt(max, min)
 	return rand;
 }
 
-function clear()
-{
-	document.querySelector("#sourceText").value = "";
-	dict = {};
-	possibleFirsts = [];
-	var node = document.querySelector("#outcome");
-	while(node.firstChild)
-	{
-		node.removeChild(node.firstChild);
-	}
-
-	localStorage.clear();
-	window.location = window.location; //refresh
-}
-
+replaced = true;
 function editor(event){
 	contentMalleable("daStuff", "word", function(elem, appl){});
 	var writing = document.querySelector("#daStuff");
 
 	if(event.key == " "){
-		var sel = rangy.getSelection();
-		var range = rangy.createRange();
-		var typed = sel.focusNode;
-		var typedWord = typed.textContent;
-		var node = typed.previousSibling;
-		while((!(/\b\w+\b/.test(node.textContent)))&&(node)){
-			node = node.previousSibling;
-		}
-		var text = node.textContent;
-		var changedText = text.trim();
+		if(replaced){
+			var sel = rangy.getSelection();
+			var range = rangy.createRange();
+			var typed = sel.focusNode;
+			var typedWord = typed.textContent;
+			//check for end of sentence or contraction
+			if(/[.?!]/.test(typedWord)){
+				return;
+			}
+			var node = typed.previousSibling;
+			while((!(/\b\w+\b/.test(node.textContent)))&&(node)){
+				if(/['-]/.test(node.content)||/['-]/.test(node.textContent)){
+					return;
+				}
+				node = node.previousSibling;
+			}
 
-		var nextWord = generateWord(changedText);
-		if(nextWord){
-			console.log("original", typedWord, "new", nextWord);
-			typed.textContent = nextWord;
-			contentMalleable("daStuff", "word", function(elem, appl){});
+			var text = node.textContent;
+			var changedText = text.trim().toLowerCase().replace(/[^\w\s]|_/g, "");
 
-			//http://stackoverflow.com/questions/18351001/move-keyboard-caret-to-the-end-of-element-with-rangy
-			//set the caret after the node for this range
-			range.setStartAfter(typed);
-			range.setEndAfter(typed);
+			var nextWord = generateWord(changedText);
+			if(nextWord){
+				console.log("original: " + typedWord, "new: " + nextWord, "based from: " + text);
+				typed.textContent = nextWord;
+				contentMalleable("daStuff", "word", function(elem, appl){});
 
-			//apply this range to the selection object
-			sel.removeAllRanges();
-			sel.addRange(range);
+				//http://stackoverflow.com/questions/18351001/move-keyboard-caret-to-the-end-of-element-with-rangy
+				//set the caret after the node for this range
+				range.setStartAfter(typed);
+				range.setEndAfter(typed);
+
+				//apply this range to the selection object
+				sel.removeAllRanges();
+				sel.addRange(range);
+
+				replaced = false;
+				contentMalleable("daStuff", "word", function(elem, appl){});
+			}
+		} else {
+		replaced = true;
 		}
 	}
-
 }
 
 function generateWord(word){
