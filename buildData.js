@@ -1,15 +1,15 @@
 var fs = require('fs');
 var LineByLineReader = require('line-by-line');
-var lr = new LineByLineReader('text/shakespeare.txt');
+var lr = new LineByLineReader('text/wilde.txt');
 
 var dict = {};
 var lastWord = null;
 
 lr.on('error', function(err){console.log(err)});
 lr.on('line', function(line){
-  var words = line.split(/[\s]+|-{2,}/);
+  var words = line.split(/[\s]+|-/);
   if(lastWord){
-    words[0] = words[0].replace(/[^\w'-]/g, "");
+    words[0] = words[0].replace(/[^\w']|_/g, "");
     var newWord = words[0];
     if((dict[lastWord] === undefined)||((typeof dict[lastWord] != "string")&&(typeof dict[lastWord] != "object")))
     {
@@ -21,7 +21,7 @@ lr.on('line', function(line){
     }
   }
   for(var i=1; i<words.length; i++){
-    words[i] = words[i].replace(/[^\w'-]/g, "");
+    words[i] = words[i].replace(/[^\w']|_/g, "");
     var word = words[i];
     var previousWord = words[i-1];
     if(word != ""){

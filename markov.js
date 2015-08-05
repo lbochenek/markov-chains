@@ -44,10 +44,10 @@ function processInput()
 	dict = {};
 	var text = document.querySelector("#sourceText").value;
 	var words = text.split(/[\s]+|-/);
-	words[0] = words[0].replace(/[^\w'-]/g, "");
+	words[0] = words[0].replace(/[^\w']|_/g, "");
 	for(var i=1; i<words.length; i++)
 	{
-		words[i].replace(/[^\w'-]/g, "");
+		words[i] = words[i].replace(/[^\w']|_/g, "");
 		var word = words[i];
 		var previousWord = words[i-1];
 		if(word != "")
@@ -103,7 +103,7 @@ function editor(event){
 	contentMalleable("daStuff", "word", function(elem, appl){});
 	var writing = document.querySelector("#daStuff");
 
-	if(event.key == " "){
+	if(event.charCode == 32){ //space
 		if(replaced){
 			var sel = rangy.getSelection();
 			var range = rangy.createRange();
