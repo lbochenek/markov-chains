@@ -30,7 +30,7 @@ window.onload = function() {
 		$("#chooseCustom").children().hide();
 		$("#choosePreLoaded").children().show();
 		dict = {};
-		$('#daStuff').empty().append('<span class="word">Edit</span>');
+		$('#daStuff').empty().append('<span class="word">Edit</span> <span class="word">me</span>');
 	});
 
 	document.querySelector('#subDrop').addEventListener("click", processSelected);
@@ -43,7 +43,7 @@ function processInput()
 {
 	dict = {};
 	var text = document.querySelector("#sourceText").value;
-	var words = text.split(/[\s]+|-{2,}/);
+	var words = text.split(/[\s]+|-/);
 	words[0] = words[0].replace(/[^\w'-]/g, "");
 	for(var i=1; i<words.length; i++)
 	{
@@ -147,7 +147,7 @@ function editor(event){
 				sel.addRange(range);
 
 				replaced = false;
-				contentMalleable("daStuff", "word", function(elem, appl){});
+				// contentMalleable("daStuff", "word", function(elem, appl){});
 			}
 		} else {
 		replaced = true;
