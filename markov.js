@@ -168,24 +168,29 @@ function generateWord(word){
 
 //function courtesy of Allison Parrish - https://github.com/aparrish/contentmalleable/blob/master/contentmalleable.js
 function contentMalleable(elemId, spanClass, onElementCreate) {
+    //get cursor position
     var sel = rangy.getSelection();
+    //saves current cursor position by placing markers on the DOM
     var savedSel = rangy.saveSelection();
+    //will add "word" class to each span; normalize - prevents class applier from merging adjacent text nodes with same class
     var applier = rangy.createClassApplier(spanClass, {
         normalize: false,
         onElementCreate: onElementCreate
     });
     var range = rangy.createRange();
-    while (range.findText(/\b\w+\b/)) {
+    while (range.findText(/\b([a-zA-Z0-9_'])+/)) {
         // don't attempt to re-apply if the selection is in the range
+        //this happens when the range is currently on the user's cursor
         if (range.intersectsNode(
                 $('.rangySelectionBoundary').get(0), true)) {
-            range.collapse(false);
+            range.collapse(false);//moves the start and end of the range to just the end of the range
         }
+        //when the range isn't even in the contentEditable
         else if (!range.intersectsNode(document.getElementById(elemId))) {
             range.collapse(false);
         }
         else {
-            applier.applyToRange(range);
+            applier.applyToRange(range); //actually wraps the spans around the word
             range.collapse(false);
         }
     }
@@ -198,7 +203,7 @@ function contentMalleable(elemId, spanClass, onElementCreate) {
     });
     // if any spans have more than one word in them now, unwrap
     $('.'+spanClass).each(function(i) {
-        if ($(this).text().match(/\b.+\b.+\b/)) {
+        if ($(this).text().match(/\b.+(^[a-zA-Z0-9_']|[a-zA-Z0-9_']$|[^a-zA-Z0-9_'][a-zA-Z0-9_']|[a-zA-Z0-9_'][^a-zA-Z0-9_']).+\b/)) {
             $(this).contents().unwrap();
         }
     });
